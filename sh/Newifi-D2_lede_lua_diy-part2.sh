@@ -58,6 +58,18 @@ function merge_package(){
 rm -rf package/custom2; mkdir package/custom2
   
 ##########固件配置修改#########  
+
+# --- Newifi-D2 64MB Flash 适配开始 ---
+# 1. 修改 mt7621.mk 以支持 64MB (65216k) 固件定义
+if [ -f "target/linux/ramips/image/mt7621.mk" ]; then
+    sed -i '/Device\/d-team_newifi-d2/,/endef/s/IMAGE_SIZE := .*/IMAGE_SIZE := 65216k/' target/linux/ramips/image/mt7621.mk
+fi
+
+# 2. 修改 DTS 文件以适配 64MB 分区布局 (0x3fb0000)
+if [ -f "target/linux/ramips/dts/mt7621_d-team_newifi-d2.dts" ]; then
+    sed -i '/label = "firmware"/,/reg = <0x50000/s/reg = <0x50000 .*>;/reg = <0x50000 0x3fb0000>;/' target/linux/ramips/dts/mt7621_d-team_newifi-d2.dts
+fi
+
 # Modify default IP
 #sed -i 's/192.168.1.1/192.168.50.5/g' package/base-files/files/bin/config_generate
 
